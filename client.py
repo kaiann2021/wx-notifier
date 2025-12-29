@@ -43,17 +43,14 @@ class WeComClient:
         #         Body
         content = ""
         if title:
-            content += f"[{title}]\n"
+            content += f"**{title}**\n"
         content += body
 
         payload = {
             "touser": touser,
-            "msgtype": "text",
+            "msgtype": "markdown",
             "agentid": self.agentid,
-            "text": {
-                "content": content
-            },
-            "safe": 0
+            "content": content,
         }
 
         try:
