@@ -31,7 +31,7 @@ class WeComClient:
             print(f"Exception fetching access token: {e}")
             return None
 
-    def send_text(self, title, body):
+    def send_text(self, title, body, touser="@all"):
         token = self._get_access_token()
         if not token:
             return {"errcode": -1, "errmsg": "Failed to get access token"}
@@ -47,7 +47,7 @@ class WeComClient:
         content += body
 
         payload = {
-            "touser": "@all",
+            "touser": touser,
             "msgtype": "text",
             "agentid": self.agentid,
             "text": {

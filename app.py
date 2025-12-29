@@ -71,11 +71,12 @@ def notify():
 
     title = request.args.get('title', 'Notification')
     body = request.args.get('body', '')
+    touser = request.args.get('touser', '@all')
 
     if not body:
          return jsonify({"error": "Missing 'body' parameter"}), 400
 
-    result = client.send_text(title, body)
+    result = client.send_text(title, body, touser)
     
     if result.get('errcode') == 0:
         return jsonify({"status": "success", "wecom_response": result}), 200
