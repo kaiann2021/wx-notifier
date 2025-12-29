@@ -1,65 +1,54 @@
 from flask import Flask, request, jsonify
 import json
 import os
-from cryptography.fernet import Fernet
 from client import WeComClient
 
 app = Flask(__name__)
 
 # Configuration Paths
-DATA_DIR = 'data'
 CONFIG_FILE = 'config.json'
-KEY_FILE = os.path.join(DATA_DIR, 'secret.key')
-TOKEN_FILE = os.path.join(DATA_DIR, 'token.bin')
 
 # Global variables
 client = None
 valid_token = None
 
-def load_config_and_token():
+def load_config():
     global client, valid_token
     
-    # 1. Load WeCom Config
     if not os.path.exists(CONFIG_FILE):
         print(f"Error: {CONFIG_FILE} not found. Please run setup.py first.")
         return False
 
-    with open(CONFIG_FILE, 'r') as f:
-        config = json.load(f)
-        client = WeComClient(
-            corpid=config.get('corpid'),
-            corpsecret=config.get('corpsecret'),
-            agentid=config.get('agentid')
-        )
-
-    # 2. Load and Decrypt Request Token
-    if not os.path.exists(KEY_FILE) or not os.path.exists(TOKEN_FILE):
-        print("Error: security tokens not found. Please run setup.py first.")
-        return False
-
     try:
-        with open(KEY_FILE, 'rb') as f:
-            key = f.read()
-        
-        cipher_suite = Fernet(key)
-        
-        with open(TOKEN_FILE, 'rb') as f:
-            encrypted_token = f.read()
+        with open(CONFIG_FILE, 'r') as f:
+            config = json.load(f)
             
-        valid_token = cipher_suite.decrypt(encrypted_token).decode()
-        print("Configuration and tokens loaded successfully.")
+            # Load WeCom Client
+            client = WeComClient(
+                corpid=config.get('corpid'),
+                corpsecret=config.get('corpsecret'),
+                agentid=config.get('agentid')
+            )
+            
+            # Load Auth Token
+            valid_token = config.get('auth_token')
+            
+            if not valid_token:
+                print("Error: 'auth_token' is missing in config.json")
+                return False
+                
+        print("Configuration loaded successfully.")
         return True
     
     except Exception as e:
-        print(f"Error loading secrets: {e}")
+        print(f"Error loading config: {e}")
         return False
 
 @app.route('/notify', methods=['GET'])
 def notify():
     # Helper to check init
     if not client or not valid_token:
-        # Try loading again if potentially not initialized (though main does it)
-        if not load_config_and_token():
+        if not load_config():
             return jsonify({"error": "Server not configured properly"}), 500
 
     # 1. Auth Check
@@ -83,8 +72,7 @@ def notify():
         return jsonify({"status": "failed", "wecom_response": result}), 500
 
 if __name__ == '__main__':
-    if load_config_and_token():
-        # Listen on all interfaces, port 8080 or configurable
+    if load_config():
         port = 8080
         print(f"Starting server on 0.0.0.0:{port}")
         app.run(host='0.0.0.0', port=port)
