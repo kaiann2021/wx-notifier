@@ -50,7 +50,9 @@ class WeComClient:
             "touser": touser,
             "msgtype": "markdown",
             "agentid": self.agentid,
-            "content": content,
+            "markdown": {
+                "content": content
+            }
         }
 
         try:
