@@ -10,4 +10,4 @@ COPY . .
 # Expose port 8080
 EXPOSE 8080
 
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:8080", "app:app"]

@@ -24,6 +24,10 @@ A simple HTTP Service to send notifications via Enterprise WeChat (WeCom/WorkWeC
     ```bash
     python app.py
     ```
+    *For production, use Gunicorn:*
+    ```bash
+    gunicorn --workers 4 --bind 0.0.0.0:8080 app:app
+    ```
 
 ### Method 2: Docker
 1.  Build image:

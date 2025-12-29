@@ -117,8 +117,11 @@ def callback():
     # The requirement focused on passing validation.
     return "success"
 
+# Load config on module import to support Gunicorn
+load_config()
+
 if __name__ == '__main__':
-    if load_config():
+    if client and valid_token:
         port = 8080
         print(f"Starting server on 0.0.0.0:{port}")
         app.run(host='0.0.0.0', port=port)
