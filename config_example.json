@@ -1,0 +1,8 @@
+{
+  "auth_token": "your-secret-token-here",
+  "corpid": "ww1234567890abcdef",
+  "agentid": "1000001",
+  "corpsecret": "your-app-secret-here",
+  "callback_token": "optional-callback-token",
+  "encoding_aes_key": "optional-encoding-aes-key"
+}
