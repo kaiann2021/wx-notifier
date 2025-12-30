@@ -72,11 +72,14 @@ def notify():
     title = request.args.get('title', 'Notification')
     body = request.args.get('body', '')
     touser = request.args.get('touser', '@all')
+    msgtype = request.args.get('msgtype', 'text')
+    url = request.args.get('url', '')
+    btntxt = request.args.get('btntxt', 'Details')
 
     if not body:
          return jsonify({"error": "Missing 'body' parameter"}), 400
 
-    result = client.send_text(title, body, touser)
+    result = client.send_message(msgtype=msgtype, touser=touser, title=title, content=body, url=url, btntxt=btntxt)
     
     if result.get('errcode') == 0:
         return jsonify({"status": "success", "wecom_response": result}), 200

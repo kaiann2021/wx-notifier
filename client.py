@@ -31,31 +31,37 @@ class WeComClient:
             print(f"Exception fetching access token: {e}")
             return None
 
-    def send_text(self, title, body, touser="@all"):
+    def send_message(self, msgtype="text", touser="@all", **kwargs):
         token = self._get_access_token()
         if not token:
             return {"errcode": -1, "errmsg": "Failed to get access token"}
 
         url = f"https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={token}"
         
-        # Using Text message type.
-        # Format: [Title]
-        #         Body
-        content = ""
-        if title:
-            content += f"[{title}]\n"
-        content += body
-
         payload = {
             "touser": touser,
-            "msgtype": "text",
+            "msgtype": msgtype,
             "agentid": self.agentid,
-            "text": {
-                "content": content
-            },
             "safe": 0
         }
 
+        if msgtype == 'text':
+            content = kwargs.get('content', '')
+            title = kwargs.get('title')
+            # Text message: [Title]\nBody
+            if title:
+                content = f"[{title}]\n{content}"
+            payload['text'] = {
+                "content": content
+            }
+        elif msgtype == 'textcard':
+            payload['textcard'] = {
+                "title": kwargs.get('title', 'Notification'),
+                "description": kwargs.get('content', ''),
+                "url": kwargs.get('url', ''),
+                "btntxt": kwargs.get('btntxt', 'Details')
+            }
+        
         try:
             response = requests.post(url, json=payload)
             return response.json()
